@@ -22,6 +22,12 @@ type Cluster struct {
 
 type arrayFlags []string
 
+var (
+	clusterFlags     arrayFlags
+	printVersionFlag bool
+	BuildVersion     string = "development"
+)
+
 func (i *arrayFlags) String() string {
 	return fmt.Sprintf("[%s]", strings.Join(*i, " "))
 }
@@ -31,18 +37,24 @@ func (i *arrayFlags) Set(value string) error {
 	return nil
 }
 
-var clusterFlags arrayFlags
-
 func init() {
 	const (
 		defaultClusterFlags      = "dev:dev1"
 		defaultClusterFlagsUsage = "AWS Profile and EKS Cluster name(s) joined by a colon, can be passed more than once\ne.g. -clusters dev:dev1 -clusters tst:tst1"
+		defaultVersionFlag       = false
+		defaultVersionFlagUsage  = "print current version and exit"
 	)
+	flag.BoolVar(&printVersionFlag, "version", defaultVersionFlag, defaultVersionFlagUsage)
+	flag.BoolVar(&printVersionFlag, "v", defaultVersionFlag, defaultVersionFlagUsage+" (shorthand)")
 	flag.Var(&clusterFlags, "clusters", defaultClusterFlagsUsage)
 }
 
 func main() {
 	flag.Parse()
+	if printVersionFlag {
+		fmt.Fprintf(os.Stderr, "%s\n", BuildVersion)
+		os.Exit(0)
+	}
 	clusters := []Cluster{}
 	for _, c := range clusterFlags {
 		cInfo := strings.Split(c, ":")
