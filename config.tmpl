@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+clusters:
+{{ range . -}}
+- name: {{ .Arn }}
+  cluster:
+    certificate-authority-data: {{ .CertificateAuthority }}
+    server: {{ .Endpoint }}
+{{ end -}}
+contexts:
+{{ range . -}}
+- name: {{ .Name }}
+  context:
+    cluster: {{ .Arn }}
+    user: oidc-{{ .Name }}
+{{ end -}}
+kind: Config
+preferences: {}
+users:
+{{ range . -}}
+- name: oidc-{{ .Name }}
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - oidc-login
+      - get-token
+      - --oidc-issuer-url={{ .OidcClientIssuerUrl }}
+      - --oidc-client-id={{ .OidcClientID }}
+      - --oidc-client-secret={{ .OidcClientSecret }}
+      command: kubectl
+      env: null
+      interactiveMode: IfAvailable
+      providInfo: false
+{{ end -}}
