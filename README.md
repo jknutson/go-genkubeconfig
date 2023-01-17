@@ -1,17 +1,29 @@
 # go-genkubeconfig
 
-This tool should help create `~/.kube/config` files for use with EKS clusters in one or many AWS accounts.
+This tool should help create `~/.kube/config` files for use with EKS cluster(s) in one or many AWS accounts.
 
 ## Usage
 
-Get information from a cluster named "dev1" using an AWS profile called "dev":
+```
+./bin/genkubeconfig_darwin -h
+Usage of ./bin/genkubeconfig_darwin:
+  -cluster value
+        AWS Profile and EKS Cluster name joined by a colon, can be passed more than once
+        e.g. -cluster dev:dev1 -cluster tst:tst1
+  -version
+        print current version and exit
+```
+
+### Examples
+
+Get information from a single cluster named "dev1" using an AWS profile called "dev":
 
 ```
-./go-genkubeconfig -clusters dev:dev1
+./go-genkubeconfig -cluster dev:dev1
 ```
 
-You can pass multiple profiles/clusters and redirect STDOUT directly to the `~/.kube/config`:
+Pass multiple profiles/cluster and redirect STDOUT directly to the `~/.kube/config`:
 
 ```
-./go-genkubeconfig -clusters dev:dev1 -clusters tst:tst1 -clusters lab:lab1 -clusters stg:stg1 -clusters prd:prd1 > ~/.kube/config
+./go-genkubeconfig -cluster dev:dev1 -cluster tst:tst1 -cluster lab:lab1 -cluster stg:stg1 -cluster prd:prd1 > ~/.kube/config
 ```
