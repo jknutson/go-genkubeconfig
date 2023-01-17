@@ -20,33 +20,32 @@ type Cluster struct {
 	OidcClientIssuerUrl, OidcClientID, OidcClientSecret string
 }
 
-type arrayFlags []string
+type arrayFlag []string
 
 var (
-	clusterFlags     arrayFlags
+	clusterFlag      arrayFlag
 	printVersionFlag bool
 	BuildVersion     string = "development"
 )
 
-func (i *arrayFlags) String() string {
+func (i *arrayFlag) String() string {
 	return fmt.Sprintf("[%s]", strings.Join(*i, " "))
 }
 
-func (i *arrayFlags) Set(value string) error {
+func (i *arrayFlag) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }
 
 func init() {
 	const (
-		defaultClusterFlags      = "dev:dev1"
-		defaultClusterFlagsUsage = "AWS Profile and EKS Cluster name(s) joined by a colon, can be passed more than once\ne.g. -clusters dev:dev1 -clusters tst:tst1"
-		defaultVersionFlag       = false
-		defaultVersionFlagUsage  = "print current version and exit"
+		defaultClusterFlag      = "dev:dev1"
+		defaultClusterFlagUsage = "AWS Profile and EKS Cluster name joined by a colon, can be passed more than once\ne.g. -cluster dev:dev1 -cluster tst:tst1"
+		defaultVersionFlag      = false
+		defaultVersionFlagUsage = "print current version and exit"
 	)
 	flag.BoolVar(&printVersionFlag, "version", defaultVersionFlag, defaultVersionFlagUsage)
-	flag.BoolVar(&printVersionFlag, "v", defaultVersionFlag, defaultVersionFlagUsage+" (shorthand)")
-	flag.Var(&clusterFlags, "clusters", defaultClusterFlagsUsage)
+	flag.Var(&clusterFlag, "cluster", defaultClusterFlagUsage)
 }
 
 func main() {
@@ -56,7 +55,7 @@ func main() {
 		os.Exit(0)
 	}
 	clusters := []Cluster{}
-	for _, c := range clusterFlags {
+	for _, c := range clusterFlag {
 		cInfo := strings.Split(c, ":")
 		// if len(cInfo) < 2 ERROR!
 		fmt.Fprintf(os.Stderr, "Describing cluster %s in env/profile %s\n", cInfo[1], cInfo[0])
@@ -65,12 +64,14 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		// TODO: handle lack of OIDC
 		cluster.OidcClientSecret, err = getOidcSecret(fmt.Sprintf("/okta/oidc/%s/secret", cInfo[1]), cInfo[0])
 		if err != nil {
 			panic(err)
 		}
 		clusters = append(clusters, *cluster)
 	}
+	// fmt.Printf("clusters:\n\t%v\n", clusters)
 	kubeConfigBuf := &bytes.Buffer{}
 	err := genKubeConfig(clusters, kubeConfigBuf)
 	if err != nil {
