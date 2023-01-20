@@ -1,0 +1,15 @@
+---
+name: 'lint'
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: 'ubuntu-latest'
+    steps:
+      # TODO: find a different mdl action, this one throws an error
+      # - name: 'markdownlint'
+      #   uses: 'nosborn/github-action-markdown-cli@v3.2.0'
+      - name: 'gofmt'
+        uses: 'Jerome1337/gofmt-action@v1.0.5'
