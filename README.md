@@ -32,3 +32,24 @@ Describing cluster stg1 in env/profile stg
 Describing cluster prd1 in env/profile prd
 Describing cluster chip-dev1 in env/profile chip
 ```
+
+## Building
+
+You can build for all distributions:
+```sh
+$ make build-all
+```
+
+You can build for a specific distribution as well, e.g. Darwin (MacOS)
+```sh
+$ make build-darwin
+```
+
+Binaries are output in the `bin/` directory:
+```sh
+$ find ./bin -type f
+bin/genkubeconfig_raspi
+bin/genkubeconfig_arm
+bin/genkubeconfig_darwin
+bin/genkubeconfig_linux
+```
